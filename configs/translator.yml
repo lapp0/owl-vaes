@@ -34,8 +34,8 @@ train:
     include_depth: false
 
 
-  target_batch_size: 120
-  batch_size: 15
+  target_batch_size: 40
+  batch_size: 5
 
   epochs: 200
 
