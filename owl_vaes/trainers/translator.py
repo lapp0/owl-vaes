@@ -395,11 +395,10 @@ class OnlineLatentBridge(nn.Module):
         self,
         x_rgb: torch.Tensor,
         *,
-        lambda_rev: float = 0.0,
         loss_reduction: str = "mean",
         loss_only: bool = True,
     ):
-        assert x_rgb.ndim == 5 and x_rgb.shape[2] == 3, str(x_rgb.shape)
+        assert x_rgb.ndim == 5 and x_rgb.shape[2] == 3
 
         # preprocess + encode
         x_wan, x_owl = self.pp(x_rgb)
@@ -553,11 +552,13 @@ class OnlineLatentTrainer(BaseTrainer):
 
         for batch in loader:
             # batch expected: [B,T,3,H,W] or (x, ...)
-            x_rgb = batch[0] if isinstance(batch, (tuple, list)) else batch
+            print(len(batch))
+            x_rgb = batch
+            #x_rgb = batch[0] if isinstance(batch, (tuple, list)) else batch
             x_rgb = x_rgb.cuda(non_blocking=True)
 
             with ctx:
-                loss = self.model(x_rgb, lambda_rev=float(getattr(self.train_cfg, "lambda_rev", 0.0)), loss_only=True)
+                loss = self.model(x_rgb, loss_only=True)
                 loss = loss / accum_steps
                 loss.backward()
 
@@ -618,11 +619,7 @@ class OnlineLatentTrainer(BaseTrainer):
 
         model = self.get_module()
         with torch.no_grad():
-            out = model(
-                x_rgb,
-                lambda_rev=float(getattr(self.train_cfg, "lambda_rev", 0.0)),
-                loss_only=False,
-            )
+            out = model(x_rgb, loss_only=False)
 
         wan_rgb = out.get("wan_rgb")
 
