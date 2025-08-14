@@ -15,8 +15,10 @@ import wandb
 from ..utils.logging import to_wandb_gif, LogHelper
 from ..utils import Timer
 from ..data import get_loader as get_data_loader
+from ..models import get_model_cls
 from ..schedulers import get_scheduler_cls
 from ..muon import init_muon
+from ..configs import Config
 
 from .base import BaseTrainer
 
@@ -468,24 +470,15 @@ class OnlineLatentTrainer(BaseTrainer):
         """Build runtime objects and optionally restore a checkpoint."""
         # Hardcode AE - TODO  fix
         from diffusers import AutoencoderKLWan
-        from owl_vaes.configs import ResNetConfig
-        from owl_vaes.models.dcae import DCAE
         wan_ae = AutoencoderKLWan.from_pretrained(
             self.model_cfg.wan_repo,
             subfolder="vae",
             torch_dtype=torch.bfloat16
         )
-        owl_cfg = ResNetConfig(
-            sample_size=list(self.model_cfg.owl_landscape_size),
-            channels=3,
-            latent_size=self.model_cfg.input_size,
-            latent_channels=self.model_cfg.input_channels,
-            noise_decoder_inputs=0.0, ch_0=256, ch_max=2048,
-            encoder_blocks_per_stage=[4,4,4,4,4,4,4],
-            decoder_blocks_per_stage=[4,4,4,4,4,4,4],
-        )
-        owl_ae = DCAE(owl_cfg)
-        owl_ae.load_state_dict(torch.load(self.model_cfg.dcae_ckpt, map_location="cpu"))
+        cfg = Config.from_yaml(self.model_cfg.vae_cfg_path).model
+        owl_ae = get_model_cls(cfg.model_id)(cfg)
+        owl_ae.load_state_dict(torch.load(self.model_cfg.vae_ckpt_path, map_location='cpu', weights_only=False))
+
         owl_ae.eval()
 
         for p in owl_ae.parameters():

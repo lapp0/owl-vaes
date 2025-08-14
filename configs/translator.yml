@@ -14,7 +14,9 @@ model:
 
   # AE load locations (used in OnlineLatentTrainer.load)
   wan_repo: "Wan-AI/Wan2.1-VACE-14B-diffusers"   # subfolder "vae" is hardcoded in code
-  dcae_ckpt: "/home/developer/workspace/models/cod_128x.pt"
+
+  vae_cfg_path: /mnt/data/shahbuland/owl-vaes/configs/cod_yt_v2/base.yml
+  vae_ckpt_path: /mnt/data/checkpoints/owl_vaes/cod_yt_v2/cod_yt_v2_515k_ema_decoder.pt
 
 train:
   trainer_id: translator
