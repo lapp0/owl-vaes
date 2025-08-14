@@ -503,7 +503,8 @@ class OnlineLatentTrainer(BaseTrainer):
 
         # ---- Optimiser (AdamW) ----
         params = [p for p in self.model.parameters() if p.requires_grad]
-        self.opt = torch.optim.AdamW(params, lr=self.train_cfg.lr, weight_decay=self.train_cfg.weight_decay)
+        assert self.train_cfg.opt == "AdamW", f"{self.train_cfg.opt} not implemented"
+        self.opt = torch.optim.AdamW(params, **self.train_cfg.opt_kwargs)
 
         # TODO: continue checkpoint
         """
