@@ -25,13 +25,15 @@ train:
   data_kwargs:
     bucket_name: cod-raw-360p-30fs
     prefix: depth-and-raw
-    include_depth: false
+    include_depth: true
+    include_flow: true
 
   sample_data_id: s3_cod_features
   sample_data_kwargs:
     bucket_name: cod-raw-360p-30fs
     prefix: depth-and-raw
-    include_depth: false
+    include_depth: true
+    include_flow: true
 
 
   target_batch_size: 40
@@ -59,8 +61,8 @@ train:
     warmup_steps: 3000
     min_lr: 3.0e-6
 
-  checkpoint_dir: checkpoints/cod_128x_depth_vq
-  resume_ckpt: null #checkpoints/cod_128x_depth/step_65000.pt
+  checkpoint_dir: checkpoints/cod_128x_wan_translator
+  resume_ckpt: null
 
   sample_interval: 1000
   save_interval: 5000
