@@ -1,0 +1,61 @@
+model:
+  model_id: translator
+  input_channels: 128
+  output_channels: 16
+  input_size: 4
+  output_size: 64
+  n_same_per_stage: 5
+  d_model: 256
+  group_size: 8
+  ftemporal: 4
+
+  owl_landscape_size: [360, 640]
+  wan_square_size: [512, 512]
+
+  # AE load locations (used in OnlineLatentTrainer.load)
+  wan_repo: "Wan-AI/Wan2.1-VACE-14B-diffusers"   # subfolder "vae" is hardcoded in code
+  dcae_ckpt: "/home/developer/workspace/models/cod_128x.pt"
+
+train:
+  trainer_id: translator
+  data_id: s3_cod_features
+  data_kwargs:
+    bucket_name: cod-raw-360p-30fs
+    prefix: depth-and-raw
+    include_depth: true
+
+  target_batch_size: 32
+  batch_size: 4
+
+  epochs: 200
+
+  opt: AdamW
+  opt_kwargs:
+    lr: 3.0e-5
+    weight_decay: 1.0e-4
+    betas: [0.9, 0.95]
+    eps: 1.0e-15
+
+  lpips_type: convnext
+  loss_weights:
+    kl: 0.0
+    lpips: 12.0
+    l2: 1.0
+    dwt: 0.0
+    crt: 4.0
+
+  scheduler: LinearWarmup
+  scheduler_kwargs:
+    warmup_steps: 3000
+    min_lr: 3.0e-6
+
+  checkpoint_dir: checkpoints/cod_128x_depth_vq
+  resume_ckpt: null #checkpoints/cod_128x_depth/step_65000.pt
+
+  sample_interval: 1000
+  save_interval: 5000
+
+wandb:
+  name: louiscastricato  # lapp0-andrew-lapp
+  project: video_models  # owl
+  run_name: distill_wan

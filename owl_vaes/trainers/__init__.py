@@ -4,9 +4,14 @@ from .audio_rec import AudioRecTrainer
 from .proxy import ProxyTrainer
 from .rec import RecTrainer
 from .decoder_tune import DecTuneTrainer
+from .diffdec_trainer import DiffusionDecoderTrainer
+from .translator import OnlineLatentTrainer
+
 
 def get_trainer_cls(trainer_id: Literal["rec", "proxy", "audio_rec"]):
     match trainer_id:
+        case "translator":
+            return OnlineLatentTrainer
         case "rec":
             return RecTrainer
         case "proxy":
