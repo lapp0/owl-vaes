@@ -441,9 +441,9 @@ class OnlineLatentBridge(nn.Module):
 
 class OnlineLatentTrainer(BaseTrainer):
     def __init__(self, train_cfg, logging_cfg, model_cfg,
-                 global_rank=0, local_rank=0, world_size=1):
+                 global_rank=0, local_rank=0, world_size=1, **kwargs):
         super().__init__(train_cfg, logging_cfg, model_cfg,
-                         global_rank=global_rank, local_rank=local_rank, world_size=world_size)
+                         global_rank=global_rank, local_rank=local_rank, world_size=world_size, **kwargs)
         torch.cuda.set_device(self.local_rank)
         self.total_step_counter = 0
 
