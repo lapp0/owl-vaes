@@ -398,7 +398,7 @@ class OnlineLatentBridge(nn.Module):
         loss_reduction: str = "mean",
         loss_only: bool = True,
     ):
-        assert x_rgb.ndim == 5 and x_rgb.shape[2] == 3
+        assert x_rgb.ndim == 5 and x_rgb.shape[2] == 3, str(x_rgb.shape)
 
         # preprocess + encode
         x_wan, x_owl = self.pp(x_rgb)
