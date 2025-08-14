@@ -14,7 +14,7 @@ import wandb
 
 from ..utils.logging import to_wandb_gif, LogHelper
 from ..utils import Timer
-from ..data import get_loader as get_data_loader
+from ..data import get_loader
 from ..models import get_model_cls
 from ..schedulers import get_scheduler_cls
 from ..muon import init_muon
@@ -537,10 +537,10 @@ class OnlineLatentTrainer(BaseTrainer):
         self.load()
 
         # data
-        loader = self.train_cfg.get_loader(rank=self.rank, world_size=self.world_size)
+        loader = get_loader(self.train_cfg.data_id, self.train_cfg.batch_size, **self.train_cfg.data_kwargs)
 
         n_samples = (getattr(self.train_cfg, "n_samples", 4) + self.world_size - 1) // self.world_size
-        sample_loader = get_data_loader(
+        sample_loader = get_loader(
             self.train_cfg.sample_data_id,
             n_samples,
             **getattr(self.train_cfg, "sample_data_kwargs", {})
