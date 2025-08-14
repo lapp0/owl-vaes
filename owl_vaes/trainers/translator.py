@@ -399,7 +399,7 @@ class OnlineLatentBridge(nn.Module):
         loss_reduction: str = "mean",
         loss_only: bool = True,
     ):
-        assert x_rgb.ndim == 5 and x_rgb.shape[2] == 3
+        assert x_rgb.ndim == 5 and x_rgb.shape[2] == 3, x_rgb.shape
 
         # preprocess + encode
         x_wan, x_owl = self.pp(x_rgb)
@@ -579,14 +579,14 @@ class OnlineLatentTrainer(BaseTrainer):
                     wandb.log(log)
 
                 # periodic sampling via eval_step (EMA)
-                if (self.total_step_counter % getattr(self.train_cfg, "sample_interval", 1000) == 0) and sample_loader is not None:
+                if (self.total_step_counter % self.train_cfg.sample_interval == 0) and sample_loader is not None:
                     with ctx, torch.no_grad():
                         eval_wandb = self.eval_step(sample_loader)
                         if self.rank == 0 and eval_wandb is not None:
                             wandb.log(eval_wandb)
 
                 # checkpoint
-                if self.total_step_counter % getattr(self.train_cfg, "save_interval", 1000) == 0:
+                if self.total_step_counter % self.train_cfg.save_interval == 0:
                     self.save()
 
                 self.barrier()
