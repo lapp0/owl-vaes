@@ -540,11 +540,7 @@ class OnlineLatentTrainer(BaseTrainer):
         loader = get_loader(self.train_cfg.data_id, self.train_cfg.batch_size, **self.train_cfg.data_kwargs)
 
         n_samples = (getattr(self.train_cfg, "n_samples", 4) + self.world_size - 1) // self.world_size
-        sample_loader = get_loader(
-            self.train_cfg.sample_data_id,
-            n_samples,
-            **getattr(self.train_cfg, "sample_data_kwargs", {})
-        )
+        sample_loader = get_loader(self.train_cfg.sample_data_id, n_samples, **self.train_cfg.sample_data_kwargs)
         sample_loader = iter(sample_loader)
 
         if self.rank == 0:

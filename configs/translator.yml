@@ -20,11 +20,19 @@ model:
 
 train:
   trainer_id: translator
+
   data_id: s3_cod_features
   data_kwargs:
     bucket_name: cod-raw-360p-30fs
     prefix: depth-and-raw
     include_depth: true
+
+  sample_data_id: s3_cod_features
+  sample_data_kwargs:
+    bucket_name: cod-raw-360p-30fs
+    prefix: depth-and-raw
+    include_depth: true
+
 
   target_batch_size: 32
   batch_size: 4
