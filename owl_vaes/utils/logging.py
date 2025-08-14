@@ -2,6 +2,7 @@ import torch.distributed as dist
 import wandb
 import torch
 from torch import Tensor
+import einops as eo
 
 import numpy as np
 
@@ -75,10 +76,10 @@ def to_wandb_depth(x1, x2, gather = False):
     # x1, x2 both is [b,c,h,w] where c >= 4
     if x1.shape[1] < 4 or x2.shape[1] < 4:
         return []
-    
+
     depth1 = x1[:,3:4] # Keep as single channel
     depth2 = x2[:,3:4]
-    
+
     x = torch.cat([depth1, depth2], dim = -1) # side to side
     x = x.clamp(-1, 1)
 
@@ -98,10 +99,10 @@ def to_wandb_flow(x1, x2, gather = False):
     # x1, x2 both is [b,c,h,w] where c >= 7
     if x1.shape[1] < 7 or x2.shape[1] < 7:
         return []
-    
+
     flow1 = x1[:,4:7] # RGB optical flow
     flow2 = x2[:,4:7]
-    
+
     x = torch.cat([flow1, flow2], dim = -1) # side to side
     x = x.clamp(-1, 1)
 
@@ -113,6 +114,19 @@ def to_wandb_flow(x1, x2, gather = False):
     x = (x.detach().float().cpu() + 1) * 127.5 # [-1,1] -> [0,255]
     x = x.permute(0,2,3,1).numpy().astype(np.uint8) # [b,c,h,w] -> [b,h,w,c]
     return [wandb.Image(img) for img in x]
+
+
+def to_wandb_gif(x, max_samples = 4):
+    x = x.clamp(-1, 1)
+    x = (x + 1) * 127.5
+    x = x.to(torch.uint8)
+    x = x[:max_samples]
+    x = eo.rearrange(x, 'b n c h w -> n c h (b w)' )
+    if x.shape[1] == 1:
+        x = x.repeat(1, 3, 1, 1)
+
+    return wandb.Video(x, format='gif', fps=60)
+
 
 # ==== AUDIO ====
 
