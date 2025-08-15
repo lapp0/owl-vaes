@@ -500,19 +500,30 @@ class OnlineLatentTrainer(BaseTrainer):
 
         import re
         def rename_encoder_ckpt(sd):
+            """
+            Strictly rename staged keys -> flat alternating conv/proj.
+              blocks.{s}.blocks.0.<...>  -> blocks.{2*s}.<...>
+              blocks.{s}.down.proj.<...> -> blocks.{2*s+1}.proj.<...>
+            Keeps every other key unchanged. Raises on rename collisions.
+            """
             out = {}
+
             for k, v in sd.items():
+                new_k = k
                 m = re.match(r"^blocks\.(\d+)\.blocks\.0\.(.+)$", k)
                 if m:
                     s = int(m.group(1))
-                    out[f"blocks.{2*s}.{m.group(2)}"] = v
-                    continue
-                m = re.match(r"^blocks\.(\d+)\.down\.proj\.(.+)$", k)
-                if m:
-                    s = int(m.group(1))
-                    out[f"blocks.{2*s+1}.proj.{m.group(2)}"] = v  # <-- no backslash before ".proj"
-                    continue
-                out[k] = v
+                    new_k = f"blocks.{2*s}.{m.group(2)}"
+                else:
+                    m = re.match(r"^blocks\.(\d+)\.down\.proj\.(.+)$", k)
+                    if m:
+                        s = int(m.group(1))
+                        new_k = f"blocks.{2*s+1}.proj.{m.group(2)}"
+
+                if new_k in out and new_k != k:
+                    raise KeyError(f"Rename collision: '{k}' -> '{new_k}' already set by another key")
+
+                out[new_k] = v
             return out
 
         config = "/mnt/data/shahbuland/owl-vaes/configs/cod_yt_v2/enc_dist.yml"
