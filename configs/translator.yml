@@ -21,8 +21,8 @@ model:
 train:
   trainer_id: translator
 
-  sample_data_id: cod_latent
-  sample_data_kwargs:
+  data_id: cod_latent
+  data_kwargs:
     window_length: 5  # size of single ground truth start tokens
     dataset_path: /mnt/data/lapp0/npy_datasets/BlackOpsColdWar/train
     batch_columns: ["rgb"]
