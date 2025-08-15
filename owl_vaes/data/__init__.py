@@ -1,4 +1,7 @@
 def get_loader(data_id: str, batch_size: int, **data_kwargs):
+    if data_id == "cod_latent":  # TODO: bad name
+        from . import cod_latent
+        return cod_latent.get_loader(batch_size)
     if data_id == "mnist":
         from . import mnist
         return mnist.get_loader(batch_size)
