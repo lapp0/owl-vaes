@@ -492,19 +492,36 @@ class OnlineLatentTrainer(BaseTrainer):
         )
         """
         ####
+        # from owl_vaes.models.dcae import DCAE
         # cfg = Config.from_yaml(self.model_cfg.vae_cfg_path).model
         # cfg.use_middle_block = False  # TODO: hack
         # owl_ae = get_model_cls(cfg.model_id)(cfg)
         # owl_ae.load_state_dict(torch.load(self.model_cfg.vae_ckpt_path, map_location='cpu', weights_only=False))
 
-        from owl_vaes.models.dcae import DCAE
+        import re
+        def rename_encoder_ckpt(sd):
+            out = {}
+            for k, v in sd.items():
+                m = re.match(r"^blocks\.(\d+)\.blocks\.0\.(.+)$", k)
+                if m:
+                    s = int(m.group(1))
+                    out[f"blocks.{2*s}.{m.group(2)}"] = v
+                    continue
+                m = re.match(r"^blocks\.(\d+)\.down\.proj\.(.+)$", k)
+                if m:
+                    s = int(m.group(1))
+                    out[f"blocks.{2*s+1}\.proj.{m.group(2)}"] = v
+                    continue
+                out[k] = v
+            return out
+
         config = "/mnt/data/shahbuland/owl-vaes/configs/cod_yt_v2/enc_dist.yml"
-        decoder_path = "/mnt/data/checkpoints/owl_vaes/cod_yt_v2/cod_yt_v2_515k_ema_decoder.pt"
         encoder_path = "/mnt/data/shahbuland/owl-vaes/checkpoints/cod_yt_v2_enc_dist_v2/step_130000.pt"
+        decoder_path = "/mnt/data/checkpoints/owl_vaes/cod_yt_v2/cod_yt_v2_515k_ema_decoder.pt"
 
         cfg = Config.from_yaml(config).model
         owl_ae = get_model_cls(cfg.model_id)(cfg)
-        owl_ae.encoder.load_state_dict(versatile_load(encoder_path))
+        owl_ae.encoder.load_state_dict(rename_encoder_ckpt(versatile_load(encoder_path)))
         owl_ae.decoder.load_state_dict(versatile_load(decoder_path))
 
         owl_ae.eval()
