@@ -553,7 +553,7 @@ class OnlineLatentTrainer(BaseTrainer):
         for batch in loader:
             # batch expected: [B,T,3,H,W] or (x, ...)
             print(len(batch))
-            x_rgb = batch.unsqueeze(0)
+            x_rgb = batch[0]
             #x_rgb = batch[0] if isinstance(batch, (tuple, list)) else batch
             x_rgb = x_rgb.cuda(non_blocking=True)
 
@@ -614,7 +614,7 @@ class OnlineLatentTrainer(BaseTrainer):
     def eval_step(self, sample_loader):
         batch = next(sample_loader)
 
-        x_rgb = batch.unsqueeze(0)
+        x_rgb = batch[0]
         #x_rgb = batch[0] if isinstance(batch, (tuple, list)) else batch
         x_rgb = x_rgb.cuda(non_blocking=True)
 
