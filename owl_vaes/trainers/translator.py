@@ -13,7 +13,7 @@ import wandb
 # TODO: EMA (details) — reintroduce when we want moving-avg weights
 
 from ..utils.logging import to_wandb_gif, LogHelper
-from ..utils import Timer
+from ..utils import Timer, versatile_load
 from ..data import get_loader
 from ..models import get_model_cls
 from ..schedulers import get_scheduler_cls
@@ -476,6 +476,7 @@ class OnlineLatentTrainer(BaseTrainer):
         )
 
         #### HACK
+        """
         from owl_vaes.configs import ResNetConfig
         from owl_vaes.models.dcae import DCAE
         cfg = ResNetConfig(
@@ -489,14 +490,22 @@ class OnlineLatentTrainer(BaseTrainer):
             encoder_blocks_per_stage = [4, 4, 4, 4, 4, 4, 4],
             decoder_blocks_per_stage = [4, 4, 4, 4, 4, 4, 4]
         )
-        cfg.use_middle_block = False
-        owl_ae = DCAE(cfg)
+        """
         ####
         # cfg = Config.from_yaml(self.model_cfg.vae_cfg_path).model
         # cfg.use_middle_block = False  # TODO: hack
         # owl_ae = get_model_cls(cfg.model_id)(cfg)
+        # owl_ae.load_state_dict(torch.load(self.model_cfg.vae_ckpt_path, map_location='cpu', weights_only=False))
 
-        owl_ae.load_state_dict(torch.load(self.model_cfg.vae_ckpt_path, map_location='cpu', weights_only=False))
+        from owl_vaes.models.dcae import DCAE
+        config = "/mnt/data/shahbuland/owl-vaes/configs/cod_yt_v2/base.yml"
+        decoder_path = "/mnt/data/checkpoints/owl_vaes/cod_yt_v2/cod_yt_v2_515k_ema_decoder.pt"
+        encoder_path = "/mnt/data/shahbuland/owl-vaes/configs/cod_yt_v2/enc_dist.yml"
+
+        cfg = Config.from_yaml(config).model
+        owl_ae = get_model_cls(cfg.model_id)(cfg)
+        owl_ae.encoder.load_state_dict(versatile_load(encoder_path))
+        owl_ae.decoder.load_state_dict(versatile_load(decoder_path))
 
         owl_ae.eval()
 
