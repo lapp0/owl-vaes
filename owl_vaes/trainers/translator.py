@@ -474,8 +474,24 @@ class OnlineLatentTrainer(BaseTrainer):
             subfolder="vae",
             torch_dtype=torch.bfloat16
         )
-        cfg = Config.from_yaml(self.model_cfg.vae_cfg_path).model
-        cfg.use_middle_block = False  # TODO: hack
+
+        #### HACK
+        from owl_vaes.configs import ResNetConfig
+        cfg = ResNetConfig(
+            sample_size=[360,640],
+            channels=3,
+            latent_size=4,
+            latent_channels=128,
+            noise_decoder_inputs=0.0,
+            ch_0=256,
+            ch_max=2048,
+            encoder_blocks_per_stage = [4, 4, 4, 4, 4, 4, 4],
+            decoder_blocks_per_stage = [4, 4, 4, 4, 4, 4, 4]
+        )
+        #cfg = Config.from_yaml(self.model_cfg.vae_cfg_path).model
+        #cfg.use_middle_block = False  # TODO: hack
+        ####
+
         owl_ae = get_model_cls(cfg.model_id)(cfg)
         owl_ae.load_state_dict(torch.load(self.model_cfg.vae_ckpt_path, map_location='cpu', weights_only=False))
 
