@@ -475,6 +475,7 @@ class OnlineLatentTrainer(BaseTrainer):
             torch_dtype=torch.bfloat16
         )
         cfg = Config.from_yaml(self.model_cfg.vae_cfg_path).model
+        cfg.use_middle_block = False  # TODO: hack
         owl_ae = get_model_cls(cfg.model_id)(cfg)
         owl_ae.load_state_dict(torch.load(self.model_cfg.vae_ckpt_path, map_location='cpu', weights_only=False))
 
