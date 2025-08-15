@@ -489,6 +489,7 @@ class OnlineLatentTrainer(BaseTrainer):
             encoder_blocks_per_stage = [4, 4, 4, 4, 4, 4, 4],
             decoder_blocks_per_stage = [4, 4, 4, 4, 4, 4, 4]
         )
+        cfg.use_middle_block = False
         owl_ae = DCAE(cfg)
         ####
         # cfg = Config.from_yaml(self.model_cfg.vae_cfg_path).model
