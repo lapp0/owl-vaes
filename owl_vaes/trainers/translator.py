@@ -477,6 +477,7 @@ class OnlineLatentTrainer(BaseTrainer):
 
         #### HACK
         from owl_vaes.configs import ResNetConfig
+        from owl_vaes.models.dcae import DCAE
         cfg = ResNetConfig(
             sample_size=[360,640],
             channels=3,
@@ -488,11 +489,12 @@ class OnlineLatentTrainer(BaseTrainer):
             encoder_blocks_per_stage = [4, 4, 4, 4, 4, 4, 4],
             decoder_blocks_per_stage = [4, 4, 4, 4, 4, 4, 4]
         )
-        #cfg = Config.from_yaml(self.model_cfg.vae_cfg_path).model
-        #cfg.use_middle_block = False  # TODO: hack
+        owl_ae = DCAE(cfg)
         ####
+        # cfg = Config.from_yaml(self.model_cfg.vae_cfg_path).model
+        # cfg.use_middle_block = False  # TODO: hack
+        # owl_ae = get_model_cls(cfg.model_id)(cfg)
 
-        owl_ae = get_model_cls(cfg.model_id)(cfg)
         owl_ae.load_state_dict(torch.load(self.model_cfg.vae_ckpt_path, map_location='cpu', weights_only=False))
 
         owl_ae.eval()
