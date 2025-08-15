@@ -498,7 +498,7 @@ class OnlineLatentTrainer(BaseTrainer):
         # owl_ae.load_state_dict(torch.load(self.model_cfg.vae_ckpt_path, map_location='cpu', weights_only=False))
 
         from owl_vaes.models.dcae import DCAE
-        config = "/mnt/data/shahbuland/owl-vaes/configs/cod_yt_v2/base.yml"
+        config = "/mnt/data/shahbuland/owl-vaes/configs/cod_yt_v2/enc_dist.yml"
         decoder_path = "/mnt/data/checkpoints/owl_vaes/cod_yt_v2/cod_yt_v2_515k_ema_decoder.pt"
         encoder_path = "/mnt/data/shahbuland/owl-vaes/checkpoints/cod_yt_v2_enc_dist_v2/step_130000.pt"
 
