@@ -510,7 +510,7 @@ class OnlineLatentTrainer(BaseTrainer):
                 m = re.match(r"^blocks\.(\d+)\.down\.proj\.(.+)$", k)
                 if m:
                     s = int(m.group(1))
-                    out[f"blocks.{2*s+1}\.proj.{m.group(2)}"] = v
+                    out[f"blocks.{2*s+1}.proj.{m.group(2)}"] = v  # <-- no backslash before ".proj"
                     continue
                 out[k] = v
             return out
